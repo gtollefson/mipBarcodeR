@@ -1,0 +1,24 @@
+Package: mipBarcodeR
+Type: Package
+Title: Automated Barcode Sheet Generator for Nanopore Sequencing
+Version: 1.0.0
+Authors@R: 
+    person("George", "Tollefson", 
+           email = "george_tollefson@brown.edu",
+           role = c("aut", "cre"))
+Description: A self-contained R package for generating barcode sheets for nanopore sequencing. 
+    Includes built-in lookup tables for REV and FW barcode sequences, making it easy 
+    for collaborators to generate barcode sheets with minimal setup. Users only need 
+    to provide their sample sheet with SampleID, FW-X, and REV-X columns.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.2.3
+Imports:
+    data.table (>= 1.14.0),
+    yaml (>= 2.3.0)
+Suggests:
+    testthat (>= 3.0.0),
+    knitr (>= 1.30),
+    rmarkdown (>= 2.10)
+VignetteBuilder: knitr 

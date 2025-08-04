@@ -1,0 +1,39 @@
+# R package specific
+.Rhistory
+.RData
+.Ruserdata
+*.Rproj
+.Rprofile
+
+# Build artifacts
+*.tar.gz
+*.zip
+*.pdf
+*.html
+
+# Temporary files
+*.tmp
+*.temp
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# R package build
+mipBarcodeR.Rcheck/
+mipBarcodeR_*.tar.gz
+
+# Test output
+test_output/
+output/
+fw4_rev4_output/
+
+# Example output files
+*.tsv
+*.csv 

@@ -1,0 +1,225 @@
+---
+title: "Quick Start Guide for mipBarcodeR"
+author: "George Bailey"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Quick Start Guide for mipBarcodeR}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 5
+)
+```
+
+# Quick Start Guide for mipBarcodeR
+
+This vignette provides a quick introduction to using the `mipBarcodeR` package for generating barcode sheets for nanopore sequencing.
+
+## Installation
+
+First, install the package:
+
+```{r install, eval = FALSE}
+# Install from GitHub (replace with your repository)
+devtools::install_github("your-username/mipBarcodeR")
+
+# Or install from local directory
+devtools::install("path/to/mipBarcodeR_package")
+```
+
+## Loading the Package
+
+```{r load}
+library(mipBarcodeR)
+```
+
+## Basic Usage
+
+### Step 1: Prepare Your Sample Sheet
+
+Your sample sheet should be a CSV file with the following columns:
+
+- `SampleID`: Unique identifier for each sample
+- `FW-X`: Well positions for the forward barcode plate (e.g., A01, B02, etc.)
+- `REV-X`: Well positions for the reverse barcode plate (e.g., A01, B02, etc.)
+
+Here's an example of what your sample sheet should look like:
+
+```csv
+SampleID,FW-1,REV-4
+Sample_001,A01,A01
+Sample_002,A02,A02
+Sample_003,A03,A03
+```
+
+### Step 2: Generate a Barcode Sheet
+
+```{r generate}
+# Get path to example sample sheet
+example_sheet_path <- system.file(
+  "extdata/example_data/example_sample_sheet.csv", 
+  package = "mipBarcodeR"
+)
+
+# Generate barcode sheet for FW-1 and REV-4
+barcode_sheet <- generate_barcode_sheet(
+  sample_sheet_path = example_sheet_path,
+  fw_number = 1,
+  rev_number = 4
+)
+
+# View the results
+head(barcode_sheet)
+```
+
+### Step 3: Write the Barcode Sheet to File
+
+```{r write}
+# Create output directory
+output_dir <- "output"
+if (!dir.exists(output_dir)) {
+  dir.create(output_dir, recursive = TRUE)
+}
+
+# Write barcode sheet to file
+output_file <- write_barcode_sheet(
+  barcode_sheet = barcode_sheet,
+  output_path = output_dir,
+  filename = "my_project",
+  fw_number = 1,
+  rev_number = 4,
+  project_name = "nanopore_run"
+)
+
+cat("Barcode sheet written to:", output_file)
+```
+
+## Advanced Usage
+
+### Multiple Barcode Sheets
+
+If you need to combine multiple barcode sets for a single sequencing run:
+
+```{r multiple, eval = FALSE}
+# Generate multiple sheets and combine them
+sample_sheets <- c("path/to/sheet1.csv", "path/to/sheet2.csv")
+fw_numbers <- c(1, 5)
+rev_numbers <- c(4, 1)
+
+combined_sheet <- generate_multiple_barcode_sheets(
+  sample_sheet_paths = sample_sheets,
+  fw_numbers = fw_numbers,
+  rev_numbers = rev_numbers
+)
+
+# Write combined sheet
+output_file <- write_multiple_barcode_sheets(
+  barcode_sheet = combined_sheet,
+  output_path = "output/",
+  filename = "nanopore_run",
+  project_name = "combined_project",
+  fw_numbers = fw_numbers,
+  rev_numbers = rev_numbers
+)
+```
+
+### Checking for Duplicates
+
+The package automatically checks for duplicate barcode pairs, but you can also check manually:
+
+```{r duplicates}
+# Create a sample sheet with potential duplicates
+duplicate_test_sheet <- data.table::data.table(
+  sample_name = c("Sample1", "Sample2", "Sample3", "Sample4"),
+  fw = c("ATCG", "GCTA", "ATCG", "TAGC"),
+  rev = c("GCTA", "ATCG", "GCTA", "CGAT")
+)
+
+# Check for duplicates
+duplicates <- check_duplicate_barcode_pairs(duplicate_test_sheet)
+```
+
+## Package Features
+
+### Built-in Lookup Tables
+
+The package includes all necessary lookup tables:
+
+```{r lookup}
+# Load lookup tables
+lookup_tables <- load_lookup_tables()
+
+# Check available data
+cat("Available lookup tables:\n")
+cat("- REV barcode sequences:", nrow(lookup_tables$rev_barcode_seq_sheet), "entries\n")
+cat("- FW primer number lookup:", nrow(lookup_tables$fw_primer_number_lookup_sheet), "entries\n")
+cat("- FW primer sequences:", nrow(lookup_tables$fw_primer_seq_lookup_sheet), "entries\n")
+```
+
+### Error Handling
+
+The package includes comprehensive error checking:
+
+```{r error}
+# Test error handling with invalid data
+tryCatch({
+  # This will fail because the lookup tables don't support FW-5/REV-1
+  generate_barcode_sheet(example_sheet_path, fw_number = 5, rev_number = 1)
+}, error = function(e) {
+  cat("Error caught:", e$message, "\n")
+})
+```
+
+## Output Format
+
+The generated barcode sheets are saved as TSV files with the following columns:
+
+- `sample_name`: The sample identifier
+- `fw`: Forward barcode sequence
+- `rev`: Reverse barcode sequence
+
+This format is compatible with nanopore sequencing platforms.
+
+## Supported Barcode Sets
+
+Currently, the package includes lookup tables for:
+
+- FW-1 with REV-4
+- FW-5 with REV-1
+
+Additional barcode sets can be added by updating the lookup tables in the package.
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Missing columns**: Ensure your sample sheet has `SampleID`, `FW-X`, and `REV-X` columns
+2. **Invalid well positions**: Well positions should be in format A01, B02, etc.
+3. **Unsupported barcode sets**: Check that your FW/REV combination is supported
+4. **Duplicate barcodes**: The package will warn you about duplicate barcode pairs
+
+### Getting Help
+
+For additional help:
+
+1. Check the package documentation: `?generate_barcode_sheet`
+2. View the README file for detailed instructions
+3. Run the example script: `system.file("examples/run_example.R", package = "mipBarcodeR")`
+
+## Next Steps
+
+Now that you've learned the basics:
+
+1. Prepare your own sample sheet following the format shown above
+2. Use `generate_barcode_sheet()` with your data
+3. Use `write_barcode_sheet()` to save the results
+4. Check the output file to ensure it meets your sequencing platform's requirements
+
+Happy barcode sheet generation! 
