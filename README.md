@@ -54,7 +54,7 @@ Sample_002,5,1,C01,C01
 ```r
 library(mipBarcodeR)
 barcode_sheet <- generate_barcode_sheet("your_sample_sheet.csv")
-write_barcode_sheet(barcode_sheet, "output/", "project_name")
+write_barcode_sheet(barcode_sheet, "output_directory", "project_name_prefix")
 ```
 
 ### 4. Output
