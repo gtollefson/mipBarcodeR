@@ -127,6 +127,7 @@ The demo will:
 ## Output Format
 
 The generated barcode sheets are saved as TSV files with the following columns:
+
 - `sample_name`: The sample identifier
 - `fw`: Forward barcode sequence
 - `rev`: Reverse barcode sequence
