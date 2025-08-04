@@ -54,7 +54,7 @@ write_barcode_sheet <- function(barcode_sheet, output_path, filename, project_na
   data.table::fwrite(barcode_sheet, file = full_path, sep = "\t", quote = FALSE)
   
   message("✅ Barcode sheet written to: ", full_path)
-  message("📊 Sheet contains ", nrow(barcode_sheet), " samples")
+  message("Sheet contains ", nrow(barcode_sheet), " samples")
   
   return(full_path)
 }
@@ -105,7 +105,7 @@ write_multiple_barcode_sheets <- function(barcode_sheet, output_path, filename, 
   data.table::fwrite(barcode_sheet, file = full_path, sep = "\t", quote = FALSE)
   
   message("✅ Combined barcode sheet written to: ", full_path)
-  message("📊 Sheet contains ", nrow(barcode_sheet), " samples from ", 
+  message("Sheet contains ", nrow(barcode_sheet), " samples from ", 
           length(unique(paste0("FW-", fw_numbers, "_REV-", rev_numbers))), " barcode sets")
   
   return(full_path)
