@@ -99,17 +99,7 @@ Generates a barcode sheet for a single FW/REV combination.
 
 **Returns:** A data.table with columns: sample_name, fw, rev
 
-### `generate_multiple_barcode_sheets()`
 
-Generates multiple barcode sheets and combines them into a single sheet.
-
-**Parameters:**
-- `sample_sheet_paths`: Vector of paths to sample sheet CSV files
-- `fw_numbers`: Vector of FW plate numbers
-- `rev_numbers`: Vector of REV plate numbers
-- `check_duplicates`: Whether to check for duplicate barcode pairs (default: TRUE)
-
-**Returns:** A data.table with the combined barcode sheet
 
 ### `check_duplicate_barcode_pairs()`
 
@@ -128,8 +118,6 @@ Writes a barcode sheet to a TSV file.
 - `barcode_sheet`: The barcode sheet to write
 - `output_path`: Directory to save the file
 - `filename`: Base filename (without extension)
-- `fw_number`: FW plate number (for filename)
-- `rev_number`: REV plate number (for filename)
 - `project_name`: Optional project name (for filename)
 
 **Returns:** Full path to the written file
@@ -141,28 +129,21 @@ The package includes example data that you can use to test the functions:
 ```r
 # Get path to example sample sheet
 example_sheet_path <- system.file(
-  "extdata/example_data/example_sample_sheet.csv", 
+  "extdata/example_data/example_sample_sheet_new_format.csv", 
   package = "mipBarcodeR"
 )
 
 # Generate barcode sheet using example data
-barcode_sheet <- generate_barcode_sheet(
-  sample_sheet_path = example_sheet_path,
-  fw_number = 1,
-  rev_number = 4
-)
+barcode_sheet <- generate_barcode_sheet(example_sheet_path)
 ```
 
 ## Testing the Package
 
-You can run the complete example script to test all functionality:
+You can run the complete demo script to test all functionality:
 
 ```r
-# Run the example script
-source(system.file("examples/run_example.R", package = "mipBarcodeR"))
-
-# Or run from command line
-Rscript examples/run_example.R
+# Run the demo script
+Rscript demo/demo.R
 ```
 
 ## Output Format
