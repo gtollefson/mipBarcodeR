@@ -1,14 +1,14 @@
 # mipBarcodeR
 
-A self-contained R package for generating barcode sheets for nanopore sequencing. Users only need to provide their sample sheet with SampleID, FW-X, and REV-X columns. The package includes built-in lookup tables for REV and FW barcode sequences, making it easy for collaborators to generate barcode sheets with minimal setup.
+A self-contained R package for generating barcode sheets for demultiplexing basecalled fastq files using Bailey Lab custom MIP sample barcodes. Users only need to provide their sample sheet with SampleID, FW_Plate, REV_Plate, FW_Well, and REV_Well columns. The package includes built-in lookup tables for REV plates (1-4) and FW primers (1-96), making it easy for collaborators to generate barcode sheets with minimal setup.
 
 ## Features
 
 - **Self-contained**: Includes all necessary lookup tables
 - **Easy to use**: Only requires a sample sheet from the user
 - **Duplicate checking**: Automatically identifies duplicate barcode pairs
-- **Multiple barcode sets**: Support for combining multiple FW/REV combinations
-- **Professional output**: Generates properly formatted TSV files for nanopore sequencing
+- **Multiple barcode sets**: Support for combining multiple FW/REV combinations in a single sample sheet
+- **Professional output**: Generates properly formatted TSV files for sample demultiplexing using Bailey Lab MIP sample barcodes
 
 ## Installation
 
@@ -60,41 +60,16 @@ write_barcode_sheet(barcode_sheet, "output/", "project_name")
 ### 4. Output
 TSV file with columns: `sample_name`, `fw`, `rev` (ready for nanopore sequencing)
 
-### 4. Generate Multiple Barcode Sheets
 
-```r
-# Generate multiple sheets and combine them
-sample_sheets <- c("path/to/sheet1.csv", "path/to/sheet2.csv")
-fw_numbers <- c(1, 5)
-rev_numbers <- c(4, 1)
-
-combined_sheet <- generate_multiple_barcode_sheets(
-  sample_sheet_paths = sample_sheets,
-  fw_numbers = fw_numbers,
-  rev_numbers = rev_numbers
-)
-
-# Write combined sheet
-output_file <- write_multiple_barcode_sheets(
-  barcode_sheet = combined_sheet,
-  output_path = "output/",
-  filename = "nanopore_run",
-  project_name = "combined_project",
-  fw_numbers = fw_numbers,
-  rev_numbers = rev_numbers
-)
-```
 
 ## Function Reference
 
 ### `generate_barcode_sheet()`
 
-Generates a barcode sheet for a single FW/REV combination.
+Generates a barcode sheet for multiple FW/REV combinations in a single sample sheet.
 
 **Parameters:**
 - `sample_sheet_path`: Path to the sample sheet CSV file
-- `fw_number`: The FW plate number (e.g., 1 for FW-1)
-- `rev_number`: The REV plate number (e.g., 4 for REV-4)
 - `check_duplicates`: Whether to check for duplicate barcode pairs (default: TRUE)
 
 **Returns:** A data.table with columns: sample_name, fw, rev
@@ -124,17 +99,14 @@ Writes a barcode sheet to a TSV file.
 
 ## Example Data
 
-The package includes example data that you can use to test the functions:
+The package includes a demo script and example input file:
 
 ```r
-# Get path to example sample sheet
-example_sheet_path <- system.file(
-  "extdata/example_data/example_sample_sheet_new_format.csv", 
-  package = "mipBarcodeR"
-)
+# Run the demo script
+Rscript demo/demo.R
 
-# Generate barcode sheet using example data
-barcode_sheet <- generate_barcode_sheet(example_sheet_path)
+# Or use the example input file directly
+barcode_sheet <- generate_barcode_sheet("demo/example_input.csv")
 ```
 
 ## Testing the Package
@@ -145,6 +117,12 @@ You can run the complete demo script to test all functionality:
 # Run the demo script
 Rscript demo/demo.R
 ```
+
+The demo will:
+1. Load the example input file (`demo/example_input.csv`)
+2. Generate barcode sequences for 4 samples
+3. Save the output to `demo/demo_output/`
+4. Show you the expected format
 
 ## Output Format
 
@@ -163,6 +141,8 @@ The package includes comprehensive error checking:
 - Identifies duplicate barcode pairs
 - Provides informative error messages
 - Validates FW/REV combinations against available lookup tables
+- Validates well format (A01, B02, etc.)
+- Validates plate number ranges (FW: 1-96, REV: 1-4)
 
 ## Contributing
 
