@@ -21,30 +21,22 @@ generate_barcode_sheet <- function(sample_sheet_path, check_duplicates = TRUE) {
   
   # Read sample sheet
   plate_map_sheet <- data.table::fread(sample_sheet_path)
+  data.table::setDT(plate_map_sheet)
   
-  # Validate sample sheet structure
-  validate_sample_sheet(plate_map_sheet)
+  # Validate sample sheet structure and auto-format wells
+  plate_map_sheet <- validate_sample_sheet(plate_map_sheet)
+  data.table::setDT(plate_map_sheet)
   
   # Clean empty rows
   plate_map_sheet <- plate_map_sheet[
     rowSums(is.na(plate_map_sheet) | plate_map_sheet == "") != ncol(plate_map_sheet)
   ]
   
-  # Format well positions
-  data.table::set(plate_map_sheet, 
-                  i = which(grepl("^[A-Z]\\d$", plate_map_sheet$FW_Well)), 
-                  j = "FW_Well", 
-                  value = sub("(\\D)(\\d)", "\\10\\2", plate_map_sheet$FW_Well[grepl("^[A-Z]\\d$", plate_map_sheet$FW_Well)]))
-  data.table::set(plate_map_sheet, 
-                  i = which(grepl("^[A-Z]\\d$", plate_map_sheet$REV_Well)), 
-                  j = "REV_Well", 
-                  value = sub("(\\D)(\\d)", "\\10\\2", plate_map_sheet$REV_Well[grepl("^[A-Z]\\d$", plate_map_sheet$REV_Well)]))
-  
   # Process each unique FW/REV combination
   final_results <- list()
   
   # Get unique FW/REV combinations
-  unique_combinations <- unique(plate_map_sheet[, c("FW_Plate", "REV_Plate")])
+  unique_combinations <- unique(plate_map_sheet[, .SD, .SDcols = c("FW_Plate", "REV_Plate")])
   
   for (i in 1:nrow(unique_combinations)) {
     fw_num <- unique_combinations$FW_Plate[i]
@@ -52,6 +44,7 @@ generate_barcode_sheet <- function(sample_sheet_path, check_duplicates = TRUE) {
     
     # Filter data for this combination
     subset_data <- plate_map_sheet[plate_map_sheet$FW_Plate == fw_num & plate_map_sheet$REV_Plate == rev_num, ]
+    data.table::setDT(subset_data)
     
     # Load appropriate REV barcode sequences
     lookup_tables <- load_lookup_tables(rev_num)
@@ -62,7 +55,7 @@ generate_barcode_sheet <- function(sample_sheet_path, check_duplicates = TRUE) {
     # Merge REV sequence
     subset_data <- data.table::merge.data.table(
       subset_data, 
-      rev_barcode_seq_sheet[, c("Well Position", "Sequence")],
+      rev_barcode_seq_sheet[, .SD, .SDcols = c("Well Position", "Sequence")],
       by.x = "REV_Well", 
       by.y = "Well Position", 
       all.x = TRUE
@@ -72,7 +65,7 @@ generate_barcode_sheet <- function(sample_sheet_path, check_duplicates = TRUE) {
     
     # Extract Column and Row from FW wells
     data.table::set(subset_data, j = "Column", value = as.integer(sub("^[A-Z]", "", subset_data$FW_Well)))
-    data.table::set(subset_data, j = "Row", value = sub("(\\D+)\\d+", "\\1", subset_data$FW_Well))
+    data.table::set(subset_data, j = "Row", value = sub("([A-Z]+)[0-9]+", "\\1", subset_data$FW_Well))
     
     # Filter lookup table for this FW/REV combination
     fw_lookup_filtered <- fw_primer_number_lookup_sheet[
@@ -87,7 +80,7 @@ generate_barcode_sheet <- function(sample_sheet_path, check_duplicates = TRUE) {
     # Merge FW primer number
     subset_data <- data.table::merge.data.table(
       subset_data, 
-      fw_lookup_filtered[, c("Column", "Row", "Primer-Fw")],
+      fw_lookup_filtered[, .SD, .SDcols = c("Column", "Row", "Primer-Fw")],
       by = c("Column", "Row"), 
       all.x = TRUE
     )
@@ -103,7 +96,7 @@ generate_barcode_sheet <- function(sample_sheet_path, check_duplicates = TRUE) {
     # Merge FW sequence
     subset_data <- data.table::merge.data.table(
       subset_data, 
-      fw_primer_seq_lookup_sheet[, c("Name", "Sequence")],
+      fw_primer_seq_lookup_sheet[, .SD, .SDcols = c("Name", "Sequence")],
       by.x = "FW_Primer_Name", 
       by.y = "Name", 
       all.x = TRUE
@@ -112,7 +105,7 @@ generate_barcode_sheet <- function(sample_sheet_path, check_duplicates = TRUE) {
     data.table::setnames(subset_data, "Sequence", "FW.Sequence")
     
     # Add to results
-    final_results[[i]] <- subset_data[, c("SampleID", "FW.Sequence", "REV.Sequence")]
+    final_results[[i]] <- subset_data[, .SD, .SDcols = c("SampleID", "FW.Sequence", "REV.Sequence")]
     data.table::setnames(final_results[[i]], c("sample_name", "fw", "rev"))
   }
   

@@ -51,7 +51,7 @@ check_duplicate_barcode_pairs <- function(barcode_sheet) {
   
   # Sanity check message
   if (nrow(duplicate_rows) > 0) {
-    message("⚠️  Duplicate barcode pairs found:")
+    message("Duplicate barcode pairs found:")
     print(duplicate_rows)
   } else {
     message("✅ No duplicate barcode pairs found.")
