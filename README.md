@@ -131,7 +131,7 @@ The generated barcode sheets are saved as TSV files with the following columns:
 - `fw`: Forward barcode sequence
 - `rev`: Reverse barcode sequence
 
-This format is compatible with nanopore sequencing platforms.
+This format is compatible with sample demultiplexing with Elucidator.
 
 ## Error Handling
 
