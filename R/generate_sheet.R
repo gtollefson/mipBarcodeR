@@ -31,23 +31,27 @@ generate_barcode_sheet <- function(sample_sheet_path, check_duplicates = TRUE) {
   ]
   
   # Format well positions
-  plate_map_sheet[grepl("^[A-Z]\\d$", FW_Well), FW_Well := 
-                   sub("(\\D)(\\d)", "\\10\\2", FW_Well)]
-  plate_map_sheet[grepl("^[A-Z]\\d$", REV_Well), REV_Well := 
-                   sub("(\\D)(\\d)", "\\10\\2", REV_Well)]
+  data.table::set(plate_map_sheet, 
+                  i = which(grepl("^[A-Z]\\d$", plate_map_sheet$FW_Well)), 
+                  j = "FW_Well", 
+                  value = sub("(\\D)(\\d)", "\\10\\2", plate_map_sheet$FW_Well[grepl("^[A-Z]\\d$", plate_map_sheet$FW_Well)]))
+  data.table::set(plate_map_sheet, 
+                  i = which(grepl("^[A-Z]\\d$", plate_map_sheet$REV_Well)), 
+                  j = "REV_Well", 
+                  value = sub("(\\D)(\\d)", "\\10\\2", plate_map_sheet$REV_Well[grepl("^[A-Z]\\d$", plate_map_sheet$REV_Well)]))
   
   # Process each unique FW/REV combination
   final_results <- list()
   
   # Get unique FW/REV combinations
-  unique_combinations <- unique(plate_map_sheet[, .(FW_Plate, REV_Plate)])
+  unique_combinations <- unique(plate_map_sheet[, c("FW_Plate", "REV_Plate")])
   
   for (i in 1:nrow(unique_combinations)) {
     fw_num <- unique_combinations$FW_Plate[i]
     rev_num <- unique_combinations$REV_Plate[i]
     
     # Filter data for this combination
-    subset_data <- plate_map_sheet[FW_Plate == fw_num & REV_Plate == rev_num]
+    subset_data <- plate_map_sheet[plate_map_sheet$FW_Plate == fw_num & plate_map_sheet$REV_Plate == rev_num, ]
     
     # Load appropriate REV barcode sequences
     lookup_tables <- load_lookup_tables(rev_num)
@@ -58,7 +62,7 @@ generate_barcode_sheet <- function(sample_sheet_path, check_duplicates = TRUE) {
     # Merge REV sequence
     subset_data <- data.table::merge.data.table(
       subset_data, 
-      rev_barcode_seq_sheet[, .(`Well Position`, Sequence)],
+      rev_barcode_seq_sheet[, c("Well Position", "Sequence")],
       by.x = "REV_Well", 
       by.y = "Well Position", 
       all.x = TRUE
@@ -67,12 +71,12 @@ generate_barcode_sheet <- function(sample_sheet_path, check_duplicates = TRUE) {
     data.table::setnames(subset_data, "Sequence", "REV.Sequence")
     
     # Extract Column and Row from FW wells
-    subset_data[, Column := as.integer(sub("^[A-Z]", "", FW_Well))]
-    subset_data[, Row := sub("(\\D+)\\d+", "\\1", FW_Well)]
+    data.table::set(subset_data, j = "Column", value = as.integer(sub("^[A-Z]", "", subset_data$FW_Well)))
+    data.table::set(subset_data, j = "Row", value = sub("(\\D+)\\d+", "\\1", subset_data$FW_Well))
     
     # Filter lookup table for this FW/REV combination
     fw_lookup_filtered <- fw_primer_number_lookup_sheet[
-      `Stock_Plate-Rev` == rev_num & Shift_Plate == fw_num
+      fw_primer_number_lookup_sheet$`Stock_Plate-Rev` == rev_num & fw_primer_number_lookup_sheet$Shift_Plate == fw_num, 
     ]
     
     if (nrow(fw_lookup_filtered) == 0) {
@@ -83,7 +87,7 @@ generate_barcode_sheet <- function(sample_sheet_path, check_duplicates = TRUE) {
     # Merge FW primer number
     subset_data <- data.table::merge.data.table(
       subset_data, 
-      fw_lookup_filtered[, .(Column, Row, `Primer-Fw`)],
+      fw_lookup_filtered[, c("Column", "Row", "Primer-Fw")],
       by = c("Column", "Row"), 
       all.x = TRUE
     )
@@ -93,13 +97,13 @@ generate_barcode_sheet <- function(sample_sheet_path, check_duplicates = TRUE) {
     }
     
     # Format primer number and create primer name
-    subset_data[, `Primer-Fw` := sprintf("%03d", `Primer-Fw`)]
-    subset_data[, FW_Primer_Name := paste0("hybrid_dual_fw_", `Primer-Fw`)]
+    data.table::set(subset_data, j = "Primer-Fw", value = sprintf("%03d", subset_data$`Primer-Fw`))
+    data.table::set(subset_data, j = "FW_Primer_Name", value = paste0("hybrid_dual_fw_", subset_data$`Primer-Fw`))
     
     # Merge FW sequence
     subset_data <- data.table::merge.data.table(
       subset_data, 
-      fw_primer_seq_lookup_sheet[, .(Name, Sequence)],
+      fw_primer_seq_lookup_sheet[, c("Name", "Sequence")],
       by.x = "FW_Primer_Name", 
       by.y = "Name", 
       all.x = TRUE
@@ -108,11 +112,8 @@ generate_barcode_sheet <- function(sample_sheet_path, check_duplicates = TRUE) {
     data.table::setnames(subset_data, "Sequence", "FW.Sequence")
     
     # Add to results
-    final_results[[i]] <- subset_data[, .(
-      sample_name = SampleID, 
-      fw = `FW.Sequence`, 
-      rev = `REV.Sequence`
-    )]
+    final_results[[i]] <- subset_data[, c("SampleID", "FW.Sequence", "REV.Sequence")]
+    data.table::setnames(final_results[[i]], c("sample_name", "fw", "rev"))
   }
   
   # Combine all results

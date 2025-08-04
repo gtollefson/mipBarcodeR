@@ -58,8 +58,8 @@ check_duplicate_barcode_pairs <- function(barcode_sheet) {
   }
   
   # Clean up temporary column
-  barcode_sheet[, pair_key := NULL]
-  barcode_sheet[, Duplicate_Pair := NULL]
+  barcode_sheet$pair_key <- NULL
+  barcode_sheet$Duplicate_Pair <- NULL
   
   # Return duplicates invisibly (so you can capture if needed)
   invisible(duplicate_rows)

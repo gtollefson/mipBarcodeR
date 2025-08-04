@@ -13,7 +13,7 @@ Description: A self-contained R package for generating barcode sheets for nanopo
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.2
 Imports:
     data.table (>= 1.14.0),
     yaml (>= 2.3.0)
@@ -22,3 +22,4 @@ Suggests:
     knitr (>= 1.30),
     rmarkdown (>= 2.10)
 VignetteBuilder: knitr 
+
