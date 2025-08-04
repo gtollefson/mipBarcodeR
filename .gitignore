@@ -32,7 +32,6 @@ mipBarcodeR_*.tar.gz
 # Test output
 test_output/
 output/
-fw4_rev4_output/
 
 # Example output files
 *.tsv
