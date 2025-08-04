@@ -36,4 +36,5 @@ output/
 # Example output files (but allow demo files)
 demo/*.tsv
 demo/*.csv
-!demo/example_input.csv 
+!demo/example_input.csv
+!demo/demo_output/ 
