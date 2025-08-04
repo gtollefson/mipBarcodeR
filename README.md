@@ -1,6 +1,6 @@
 # mipBarcodeR
 
-A self-contained R package for generating barcode sheets for demultiplexing basecalled fastq files using Bailey Lab custom MIP sample barcodes. Users only need to provide their sample sheet with SampleID, FW_Plate, REV_Plate, FW_Well, and REV_Well columns. The package includes built-in lookup tables for REV plates (1-4) and FW primers (1-96), making it easy for users to generate barcode sheets with minimal setup.
+A self-contained R package for generating barcode sheets for demultiplexing basecalled fastq files using Bailey Lab custom MIP sample barcodes using a program like Elucidator. Users only need to provide their sample sheet with SampleID, FW_Plate, REV_Plate, FW_Well, and REV_Well columns. The package includes built-in lookup tables for REV plates (1-4) and FW primers (1-96), making it easy for users to generate barcode sheets with minimal setup.
 
 ## Features
 
@@ -58,7 +58,7 @@ write_barcode_sheet(barcode_sheet, "output/", "project_name")
 ```
 
 ### 4. Output
-TSV file with columns: `sample_name`, `fw`, `rev` (ready for nanopore sequencing)
+TSV file with columns: `sample_name`, `fw`, `rev` (ready for input into demultiplexing with Elucidator)
 
 
 
