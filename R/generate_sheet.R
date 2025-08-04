@@ -19,9 +19,16 @@
 #' # barcode_sheet <- generate_barcode_sheet(sample_sheet_path)
 generate_barcode_sheet <- function(sample_sheet_path, check_duplicates = TRUE) {
   
+  # Debug: Show what file is being processed
+  message("DEBUG: Processing file: ", sample_sheet_path)
+  message("DEBUG: File exists: ", file.exists(sample_sheet_path))
+  
   # Read sample sheet
   plate_map_sheet <- data.table::fread(sample_sheet_path)
   data.table::setDT(plate_map_sheet)
+  
+  message("DEBUG: Read ", nrow(plate_map_sheet), " rows, ", ncol(plate_map_sheet), " columns")
+  message("DEBUG: First sample ID: ", plate_map_sheet$SampleID[1])
   
   # Validate sample sheet structure and auto-format wells
   plate_map_sheet <- validate_sample_sheet(plate_map_sheet)
