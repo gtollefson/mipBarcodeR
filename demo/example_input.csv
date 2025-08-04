@@ -1,0 +1,5 @@
+SampleID,FW_Plate,REV_Plate,FW_Well,REV_Well
+Sample_001,1,4,A01,A01
+Sample_002,1,4,A02,A02
+Sample_003,5,1,C01,C01
+Sample_004,5,1,C02,C02

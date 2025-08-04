@@ -33,6 +33,7 @@ mipBarcodeR_*.tar.gz
 test_output/
 output/
 
-# Example output files
-*.tsv
-*.csv 
+# Example output files (but allow demo files)
+demo/*.tsv
+demo/*.csv
+!demo/example_input.csv 
