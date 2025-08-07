@@ -88,6 +88,10 @@ generate_barcode_sheet <- function(sample_sheet_path, check_duplicates = TRUE) {
     data.table::set(subset_data, j = "Primer-Fw", value = sprintf("%03d", subset_data$`Primer-Fw`))
     data.table::set(subset_data, j = "FW_Primer_Name", value = paste0("hybrid_dual_fw_", subset_data$`Primer-Fw`))
     
+    # Load the appropriate forward primer sequence file(s) based on the primer numbers we need
+    primer_numbers_needed <- as.numeric(subset_data$`Primer-Fw`)
+    fw_primer_seq_lookup_sheet <- load_fw_primer_sequences(primer_numbers_needed)
+    
     # Merge FW sequence
     subset_data <- data.table::merge.data.table(
       subset_data, 

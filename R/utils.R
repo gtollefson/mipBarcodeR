@@ -22,11 +22,9 @@ load_lookup_tables <- function(rev_number = 4) {
   )
   data.table::setDT(fw_primer_number_lookup_sheet)
   
-  fw_primer_seq_lookup_sheet <- data.table::fread(
-    system.file("extdata/lookup_tables/hybrid_dual_fw_001-096_seq_sheet.csv", 
-                package = "mipBarcodeR")
-  )
-  data.table::setDT(fw_primer_seq_lookup_sheet)
+  # For now, return empty fw_primer_seq_lookup_sheet - this will be loaded dynamically
+  # in generate_barcode_sheet based on the actual primer numbers needed
+  fw_primer_seq_lookup_sheet <- data.table::data.table()
   
   return(list(
     rev_barcode_seq_sheet = rev_barcode_seq_sheet,
@@ -65,8 +63,8 @@ validate_sample_sheet <- function(sample_sheet) {
   }
   
   # Validate FW_Plate and REV_Plate values
-  if (!all(sample_sheet$FW_Plate %in% 1:96)) {
-    stop("FW_Plate values must be between 1 and 96")
+  if (!all(sample_sheet$FW_Plate %in% 1:76)) {
+    stop("FW_Plate values must be between 1 and 76")
   }
   
   if (!all(sample_sheet$REV_Plate %in% 1:4)) {
@@ -128,4 +126,60 @@ format_well_positions <- function(well_positions) {
   formatted[grepl("^[A-Z]\\d$", formatted)] <- 
     sub("(\\D)(\\d)", "\\10\\2", formatted[grepl("^[A-Z]\\d$", formatted)])
   return(formatted)
+}
+
+#' Load Forward Primer Sequences Based on Primer Numbers
+#'
+#' @description
+#' Dynamically loads the appropriate forward primer sequence file(s) based on the
+#' primer numbers that are actually needed.
+#'
+#' @param primer_numbers Numeric vector of primer numbers needed
+#'
+#' @return A data.table containing the forward primer sequences
+#' @keywords internal
+#' @noRd
+load_fw_primer_sequences <- function(primer_numbers) {
+  # Define the primer number ranges for each file
+  primer_ranges <- list(
+    "hybrid_dual_fw_001-096_seq_sheet.csv" = c(1, 96),
+    "hybrid_dual_fw_097-192_seq_sheet.csv" = c(97, 192),
+    "hybrid_dual_fw_193-288_seq_sheet.csv" = c(193, 288),
+    "hybrid_dual_fw_289-384_seq_sheet.csv" = c(289, 384)
+  )
+  
+  # Determine which files we need to load
+  files_to_load <- character(0)
+  for (file_name in names(primer_ranges)) {
+    range_min <- primer_ranges[[file_name]][1]
+    range_max <- primer_ranges[[file_name]][2]
+    
+    # Check if any of our primer numbers fall in this range
+    if (any(primer_numbers >= range_min & primer_numbers <= range_max)) {
+      files_to_load <- c(files_to_load, file_name)
+    }
+  }
+  
+  # Load the required files
+  fw_primer_seq_list <- list()
+  for (i in seq_along(files_to_load)) {
+    file_path <- system.file(paste0("extdata/lookup_tables/", files_to_load[i]), 
+                            package = "mipBarcodeR")
+    if (file.exists(file_path)) {
+      fw_seq_temp <- data.table::fread(file_path)
+      data.table::setDT(fw_seq_temp)
+      fw_primer_seq_list[[i]] <- fw_seq_temp
+    } else {
+      warning("Forward primer sequence file not found: ", files_to_load[i])
+    }
+  }
+  
+  # Combine the loaded files
+  if (length(fw_primer_seq_list) > 0) {
+    fw_primer_seq_lookup_sheet <- data.table::rbindlist(fw_primer_seq_list, use.names = TRUE, fill = TRUE)
+  } else {
+    fw_primer_seq_lookup_sheet <- data.table::data.table()
+  }
+  
+  return(fw_primer_seq_lookup_sheet)
 } 
