@@ -1,6 +1,6 @@
 # mipBarcodeR
 
-A self-contained R package for generating barcode sheets for demultiplexing basecalled fastq files using Bailey Lab custom MIP sample barcodes using a program like Elucidator. Users only need to provide their sample sheet with SampleID, FW_Plate, REV_Plate, FW_Well, and REV_Well columns. The package includes built-in lookup tables for REV plates (1-4) and FW primers (1-96), making it easy for users to generate barcode sheets with minimal setup.
+A self-contained R package for generating barcode sheets for demultiplexing basecalled fastq files using Bailey Lab custom MIP sample barcodes using a program like Elucidator. Users only need to provide their sample sheet with SampleID, FW_Plate, REV_Plate, FW_Well, and REV_Well columns. The package includes built-in lookup tables for Bailey Lab REV plates (1-4) and FW shift plates (1-96), making it easy for users to generate barcode sheets with minimal setup.
 
 ## Features
 
@@ -136,7 +136,7 @@ This format is compatible with sample demultiplexing with Elucidator.
 
 ## Adding Your Own Custom Barcodes
 
-This currently works with our designed barcodes (Bailey Lab FW shift plates (1-96) and REV stock plates (1-4)). If you design your own new barcodes and want to use this tool you will need to add the lookup tables for your barcode plates to the inst/extdata/lookup_tables following the same formatting.
+This currently works with our designed barcodes (Bailey Lab FW shift plates (1-96) and REV stock plates (1-4)). If you design your own new barcodes or use a different FW plate shifting strategy and want to use this tool you will need to add the lookup tables for your barcode plates to the inst/extdata/lookup_tables following the same formatting.
 
 ## Error Handling
 
