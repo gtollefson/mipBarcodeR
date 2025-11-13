@@ -134,6 +134,10 @@ The generated barcode sheets are saved as TSV files with the following columns:
 
 This format is compatible with sample demultiplexing with Elucidator.
 
+## Adding Your Own Custom Barcodes
+
+This currently works with our designed barcodes (Bailey Lab FW shift plates (1-96) and REV stock plates (1-4)). If you design your own new barcodes and want to use this tool you will need to add the lookup tables for your barcode plates to the inst/extdata/lookup_tables following the same formatting.
+
 ## Error Handling
 
 The package includes comprehensive error checking:
